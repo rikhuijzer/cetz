@@ -286,13 +286,13 @@
 
     let new-pt = vector.lerp(previous, pt, t)
     return if reverse {
-      (origin, (new-pt,))
+      (origin: origin, points: (new-pt,))
     } else {
-      (new-pt, (pt,))
+      (origin: new-pt, points: (pt,))
     }
   }
 
-  return (origin, args)
+  return (origin: origin, points: args)
 }
 
 /// Shorten a single cubic segment with a single point
@@ -315,11 +315,11 @@
   if reverse {
     let (s, e, c1, c2) = shorten-func(
       previous, e, c1, c2, calc.min(0, -distance))
-    return (previous, (c1, c2, e))
+    return (origin: previous, points: (c1, c2, e))
   } else {
     let (s, e, c1, c2) = shorten-func(
       previous, e, c1, c2, calc.max(0, distance))
-    return (s, (c1, c2, e))
+    return (origin: s, points: (c1, c2, e))
   }
 }
 
@@ -359,13 +359,17 @@
 
     let new-origin
     if kind == "l" {
-      (new-origin, args) = _shorten-line(
+      let new-segment = _shorten-line(
         origin, point.previous-point, args, distance,
         reverse: reverse)
+      new-origin = new-segment.origin
+      args = new-segment.points
     } else if kind == "c" {
-      (new-origin, args) = _shorten-cubic(
+      let new-segment = _shorten-cubic(
         origin, point.previous-point, args, distance,
         reverse: reverse, mode: mode)
+      new-origin = new-segment.origin
+      args = new-segment.points
     }
 
     // Test if we can "snap-to" the snap-to hint given
